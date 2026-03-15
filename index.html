@@ -4,28 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PVC Practitioner | WSDA Learning</title>
-  <meta name="description" content="The new standard for data professionals working in the AI era. Master Prompt, Validate, Communicate. Join the waitlist.">
-  <meta property="og:title" content="PVC Practitioner by Walter Shields">
-  <meta property="og:description" content="The first tool that teaches data professionals how to work with AI, not be replaced by it. Join the waitlist.">
-  <meta property="og:url" content="https://pvc.wsdalearning.ai">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="The professional workflow tool for data analysts working in the AI era. Prompt, Validate, Communicate.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --black: #0a0a0a;
+      --surface: #111110;
+      --surface2: #1a1a18;
+      --surface3: #222220;
       --white: #fafaf8;
       --green: #06c015;
       --green-dark: #059e11;
-      --green-dim: rgba(6,192,21,0.12);
-      --green-glow: rgba(6,192,21,0.06);
+      --green-dim: rgba(6,192,21,0.1);
+      --green-border: rgba(6,192,21,0.25);
       --gray: #6b6b6b;
-      --gray-light: #e8e8e4;
+      --gray-light: #a0a09a;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
       --serif: 'DM Serif Display', Georgia, serif;
       --sans: 'DM Sans', system-ui, sans-serif;
+      --amber: #e8930a;
+      --amber-dim: rgba(232,147,10,0.12);
+      --red: #e05c5c;
+      --red-dim: rgba(224,92,92,0.1);
     }
 
     html { scroll-behavior: smooth; }
@@ -35,599 +41,1637 @@
       background-color: var(--black);
       color: var(--white);
       min-height: 100vh;
-      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── GRAIN OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
-    }
+    /* ── SCREENS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
 
-    /* ── GLOW ── */
-    .glow-orb {
-      position: fixed;
-      top: -20vh;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(6,192,21,0.07) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
+    /* ════════════════════════════════════════
+       SCREEN 1: LANDING / UPLOAD
+    ════════════════════════════════════════ */
+    #screen-landing {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
     }
+    #screen-landing.active { display: flex; }
 
-    /* ── LAYOUT ── */
-    .page {
-      position: relative;
-      z-index: 1;
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
-
-    /* ── NAV ── */
-    nav {
+    .landing-nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 2rem 0 0;
-      opacity: 0;
-      animation: fadeUp 0.6s ease 0.1s forwards;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
     }
 
-    .nav-brand {
+    .brand {
       display: flex;
       align-items: center;
       gap: 10px;
       text-decoration: none;
     }
 
-    .nav-logo {
-      width: 32px;
-      height: 32px;
+    .brand-logo {
+      width: 30px;
+      height: 30px;
       background: var(--green);
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--serif);
-      font-size: 14px;
+      font-size: 13px;
       color: white;
-      font-weight: 400;
     }
 
-    .nav-name {
+    .brand-name {
       font-size: 13px;
       font-weight: 500;
       color: var(--gray-light);
-      letter-spacing: 0.02em;
     }
 
-    .nav-link {
-      font-size: 13px;
-      color: var(--gray);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .nav-link:hover { color: var(--white); }
-
-    /* ── HERO ── */
-    .hero {
-      padding: 7rem 0 4rem;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+    .session-counter {
       font-size: 12px;
+      color: var(--gray);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+    }
+
+    .session-counter span {
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .landing-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .landing-eyebrow {
+      font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--green);
-      margin-bottom: 2rem;
-      opacity: 0;
-      animation: fadeUp 0.6s ease 0.2s forwards;
+      margin-bottom: 1.25rem;
     }
 
-    .eyebrow-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
-
-    h1 {
+    .landing-title {
       font-family: var(--serif);
-      font-size: clamp(2.6rem, 6vw, 4rem);
+      font-size: clamp(2rem, 5vw, 3rem);
       font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.01em;
+      line-height: 1.15;
       color: var(--white);
-      margin-bottom: 1.75rem;
-      opacity: 0;
-      animation: fadeUp 0.7s ease 0.3s forwards;
+      max-width: 600px;
+      margin-bottom: 1rem;
     }
 
-    h1 em {
-      font-style: italic;
-      color: var(--green);
-    }
+    .landing-title em { font-style: italic; color: var(--green); }
 
-    .hero-sub {
-      font-size: 1.05rem;
+    .landing-sub {
+      font-size: 0.95rem;
       font-weight: 300;
-      color: #a0a09a;
-      line-height: 1.75;
-      max-width: 520px;
+      color: var(--gray-light);
+      max-width: 460px;
+      line-height: 1.7;
       margin-bottom: 3rem;
-      opacity: 0;
-      animation: fadeUp 0.7s ease 0.4s forwards;
     }
 
-    .hero-sub strong {
-      color: var(--white);
-      font-weight: 500;
+    .upload-zone {
+      width: 100%;
+      max-width: 480px;
+      border: 2px dashed var(--border2);
+      border-radius: 14px;
+      padding: 2.5rem 2rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1.5rem;
+      position: relative;
     }
 
-    /* ── PVC PILLS ── */
-    .pvc-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 3.5rem;
-      opacity: 0;
-      animation: fadeUp 0.7s ease 0.5s forwards;
-    }
-
-    .pvc-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 100px;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 400;
-      color: #c0c0b8;
-      transition: border-color 0.2s, color 0.2s;
-    }
-
-    .pvc-pill:hover {
+    .upload-zone:hover, .upload-zone.dragover {
       border-color: var(--green);
-      color: var(--white);
+      background: var(--green-dim);
     }
 
-    .pvc-pill-num {
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .upload-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--white);
+      margin-bottom: 0.4rem;
+    }
+
+    .upload-sub {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .upload-sub strong { color: var(--green); }
+
+    .upload-error {
+      font-size: 0.85rem;
+      color: var(--red);
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .pvc-steps {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    .pvc-step {
+      text-align: center;
+    }
+
+    .pvc-step-letter {
       font-family: var(--serif);
       font-style: italic;
-      font-size: 15px;
-      color: var(--green);
+      font-size: 1.6rem;
+      color: rgba(6,192,21,0.3);
+      margin-bottom: 0.25rem;
     }
 
-    /* ── FORM ── */
-    .form-block {
-      opacity: 0;
-      animation: fadeUp 0.7s ease 0.6s forwards;
-    }
-
-    .form-label {
-      font-size: 12px;
+    .pvc-step-label {
+      font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--gray);
-      margin-bottom: 1rem;
-      display: block;
     }
 
-    .form-row {
+    /* ════════════════════════════════════════
+       SCREEN 2: MAIN TOOL
+    ════════════════════════════════════════ */
+    #screen-tool {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+    }
+    #screen-tool.active { display: flex; }
+
+    /* Top bar */
+    .tool-nav {
       display: flex;
-      gap: 10px;
-      margin-bottom: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .form-row input {
+    .tool-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .db-badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--gray-light);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .db-badge:hover { border-color: var(--green); }
+    .db-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    .tool-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sessions-pill {
+      font-size: 12px;
+      color: var(--gray);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+    }
+
+    .sessions-pill span { color: var(--green); font-weight: 500; }
+
+    .new-session-btn {
+      font-size: 12px;
+      font-weight: 500;
+      font-family: var(--sans);
+      color: var(--green);
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .new-session-btn:hover { background: rgba(6,192,21,0.18); }
+
+    /* Three-column layout */
+    .tool-body {
       flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
+      display: grid;
+      grid-template-columns: 220px 1fr 340px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Schema sidebar */
+    .schema-panel {
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      overflow-y: auto;
+      padding: 1.25rem 1rem;
+    }
+
+    .schema-panel-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 1rem;
+      padding-left: 4px;
+    }
+
+    .schema-table {
+      margin-bottom: 0.5rem;
+    }
+
+    .schema-table-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-light);
+      transition: background 0.15s;
+    }
+
+    .schema-table-header:hover { background: var(--surface2); }
+
+    .schema-table-caret {
+      font-size: 9px;
+      color: var(--gray);
+      transition: transform 0.15s;
+    }
+
+    .schema-table-caret.open { transform: rotate(90deg); }
+
+    .schema-cols {
+      display: none;
+      padding: 2px 0 4px 20px;
+    }
+
+    .schema-col {
+      font-size: 11px;
+      color: var(--gray);
+      padding: 2px 4px;
+      line-height: 1.5;
+    }
+
+    .schema-col-type {
+      font-style: italic;
+      color: #444;
+      margin-left: 4px;
+    }
+
+    /* Main workspace */
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background: var(--black);
+    }
+
+    /* Step sections */
+    .step-section {
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .step-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .step-badge.p { color: var(--amber); border-color: rgba(232,147,10,0.3); }
+    .step-badge.v { color: var(--green); border-color: var(--green-border); }
+    .step-badge.c { color: #9b8aff; border-color: rgba(155,138,255,0.3); }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--white);
+    }
+
+    .step-sub {
+      font-size: 11px;
+      color: var(--gray);
+      margin-left: auto;
+    }
+
+    /* Prompt section */
+    .prompt-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
       border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.95rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.92rem;
       font-family: var(--sans);
       font-weight: 300;
       color: var(--white);
       outline: none;
-      transition: border-color 0.2s, background 0.2s;
+      resize: none;
+      min-height: 80px;
+      line-height: 1.6;
+      transition: border-color 0.2s;
     }
 
-    .form-row input::placeholder { color: #555; }
+    .prompt-input::placeholder { color: #3a3a38; }
+    .prompt-input:focus { border-color: var(--amber); }
 
-    .form-row input:focus {
-      border-color: var(--green);
-      background: rgba(6,192,21,0.04);
+    .prompt-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.75rem;
     }
 
-    .form-submit {
+    /* SQL section */
+    .sql-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #c0c0b0;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 80px;
+      position: relative;
+    }
+
+    .sql-box.empty { color: var(--gray); font-family: var(--sans); font-size: 13px; font-style: italic; }
+
+    .sql-copy {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 11px;
+      color: var(--gray);
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: color 0.2s;
+    }
+
+    .sql-copy:hover { color: var(--white); }
+
+    .run-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 0.75rem;
+    }
+
+    /* Results table */
+    .results-wrap {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: auto;
+      max-height: 220px;
+      margin-top: 0.75rem;
+    }
+
+    .results-wrap table {
       width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .results-wrap th {
+      background: var(--surface3);
+      color: var(--gray-light);
+      font-weight: 500;
+      padding: 7px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+    }
+
+    .results-wrap td {
+      padding: 6px 12px;
+      color: #c0c0b0;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .results-wrap tr:last-child td { border-bottom: none; }
+    .results-wrap tr:hover td { background: var(--surface3); }
+
+    .results-empty {
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 13px;
+      color: var(--gray);
+      font-style: italic;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 7px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-green {
       background: var(--green);
       color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 0.85rem 1rem;
-      font-size: 0.97rem;
-      font-weight: 500;
-      font-family: var(--sans);
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      letter-spacing: 0.01em;
+    }
+    .btn-green:hover:not(:disabled) { background: var(--green-dark); }
+
+    .btn-amber {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border: 1px solid rgba(232,147,10,0.3);
+    }
+    .btn-amber:hover:not(:disabled) { background: rgba(232,147,10,0.2); }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--gray-light);
+      border: 1px solid var(--border2);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--surface3); color: var(--white); }
+
+    .btn-purple {
+      background: rgba(155,138,255,0.1);
+      color: #9b8aff;
+      border: 1px solid rgba(155,138,255,0.25);
+    }
+    .btn-purple:hover:not(:disabled) { background: rgba(155,138,255,0.18); }
+
+    /* Spinner */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
     }
 
-    .form-submit:hover { background: var(--green-dark); }
-    .form-submit:active { transform: scale(0.99); }
-    .form-submit:disabled { background: #333; color: #666; cursor: not-allowed; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .form-error {
-      font-size: 0.82rem;
-      color: #e05c5c;
-      margin-top: 0.4rem;
-      display: none;
+    /* Validation panel (right sidebar) */
+    .validation-panel {
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
-    .form-privacy {
-      font-size: 0.78rem;
-      color: #444;
-      margin-top: 0.85rem;
-      line-height: 1.5;
+    .val-header {
+      padding: 1.25rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--border);
     }
 
-    /* ── SUCCESS STATE ── */
-    .success-block {
-      display: none;
-      padding: 2.5rem;
-      background: var(--green-dim);
-      border: 1px solid rgba(6,192,21,0.25);
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    .success-block .success-icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .success-block h3 {
-      font-family: var(--serif);
-      font-size: 1.5rem;
-      font-weight: 400;
-      color: var(--green);
-      margin-bottom: 0.5rem;
-    }
-
-    .success-block p {
-      font-size: 0.92rem;
-      color: #a0a09a;
-      line-height: 1.6;
-    }
-
-    /* ── DIVIDER ── */
-    .divider {
-      border: none;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      margin: 4rem 0;
-      opacity: 0;
-      animation: fadeUp 0.6s ease 0.8s forwards;
-    }
-
-    /* ── THREE PILLARS ── */
-    .pillars {
-      padding-bottom: 5rem;
-      opacity: 0;
-      animation: fadeUp 0.6s ease 0.9s forwards;
-    }
-
-    .pillars-label {
+    .val-title {
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--gray);
-      margin-bottom: 2rem;
+      margin-bottom: 4px;
     }
 
-    .pillar {
-      display: grid;
-      grid-template-columns: 48px 1fr;
-      gap: 0 1.25rem;
-      padding: 1.5rem 0;
-      border-top: 1px solid rgba(255,255,255,0.06);
+    .val-status {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-light);
     }
 
-    .pillar:last-child { border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .val-status.ready { color: var(--green); }
+    .val-status.running { color: var(--amber); }
+    .val-status.warning { color: var(--amber); }
 
-    .pillar-num {
-      font-family: var(--serif);
-      font-style: italic;
-      font-size: 2.2rem;
-      color: rgba(6,192,21,0.3);
-      line-height: 1;
-      padding-top: 2px;
+    .val-checks {
+      padding: 1rem 1.25rem;
+      flex: 1;
     }
 
-    .pillar-content {}
-
-    .pillar-title {
-      font-family: var(--serif);
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: var(--white);
-      margin-bottom: 0.4rem;
+    .val-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
     }
 
-    .pillar-body {
-      font-size: 0.9rem;
-      font-weight: 300;
-      color: #787870;
-      line-height: 1.7;
-    }
+    .val-check:last-child { border-bottom: none; }
 
-    .pillar-body strong {
-      color: #a0a09a;
-      font-weight: 400;
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding: 2rem 0;
+    .val-check-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .val-check-icon.pass { background: rgba(6,192,21,0.15); color: var(--green); }
+    .val-check-icon.warn { background: var(--amber-dim); color: var(--amber); }
+    .val-check-icon.fail { background: var(--red-dim); color: var(--red); }
+    .val-check-icon.pending { background: var(--surface2); color: var(--gray); }
+
+    .val-check-body {}
+    .val-check-name { font-size: 12px; font-weight: 500; color: var(--gray-light); margin-bottom: 2px; }
+    .val-check-desc { font-size: 11px; color: var(--gray); line-height: 1.5; }
+
+    .val-report {
+      margin: 0 1.25rem 1.25rem;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .val-report-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+
+    .val-report-text {
+      font-size: 12px;
+      color: var(--gray-light);
+      line-height: 1.65;
+    }
+
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 0.6rem;
+    }
+
+    .confidence-badge.high { background: var(--green-dim); color: var(--green); }
+    .confidence-badge.medium { background: var(--amber-dim); color: var(--amber); }
+    .confidence-badge.low { background: var(--red-dim); color: var(--red); }
+
+    /* Communicate section */
+    .comm-output {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 13px;
+      color: var(--gray-light);
+      line-height: 1.75;
+      min-height: 100px;
+      white-space: pre-wrap;
+    }
+
+    .comm-output.empty { font-style: italic; color: var(--gray); }
+
+    .comm-formats {
+      display: flex;
+      gap: 6px;
+      margin-top: 0.75rem;
       flex-wrap: wrap;
     }
 
-    .footer-left {
-      font-size: 12px;
-      color: #444;
+    .comm-format-btn {
+      font-size: 11px;
+      font-weight: 500;
+      font-family: var(--sans);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--gray);
+      cursor: pointer;
+      transition: all 0.15s;
     }
 
-    .footer-right {
-      font-size: 12px;
-      color: #444;
+    .comm-format-btn:hover, .comm-format-btn.active {
+      border-color: #9b8aff;
+      color: #9b8aff;
+      background: rgba(155,138,255,0.08);
     }
 
-    .footer-right a {
-      color: #444;
+    .comm-copy-btn {
+      margin-top: 0.75rem;
+    }
+
+    /* ════════════════════════════════════════
+       SCREEN 3: PAYWALL
+    ════════════════════════════════════════ */
+    #screen-paywall {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    #screen-paywall.active { display: flex; }
+
+    .paywall-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 1rem;
+    }
+
+    .paywall-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 400;
+      color: var(--white);
+      max-width: 500px;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .paywall-sub {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--gray-light);
+      max-width: 400px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .paywall-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 380px;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+
+    .paywall-price {
+      font-family: var(--serif);
+      font-size: 3rem;
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .paywall-price-sub {
+      font-size: 13px;
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+
+    .paywall-features {
+      list-style: none;
+      margin-bottom: 1.75rem;
+      text-align: left;
+    }
+
+    .paywall-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--gray-light);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .paywall-features li:last-child { border-bottom: none; }
+
+    .paywall-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 500;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .paywall-cta {
+      display: block;
+      width: 100%;
+      background: var(--green);
+      color: white;
       text-decoration: none;
-      transition: color 0.2s;
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-size: 0.97rem;
+      font-weight: 500;
+      font-family: var(--sans);
+      transition: background 0.2s;
+      text-align: center;
     }
 
-    .footer-right a:hover { color: var(--gray); }
+    .paywall-cta:hover { background: var(--green-dark); }
 
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .paywall-note {
+      font-size: 12px;
+      color: var(--gray);
+      margin-top: 1rem;
     }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 520px) {
-      .form-row { flex-direction: column; }
-      h1 { font-size: 2.2rem; }
-      .hero { padding: 5rem 0 3rem; }
+    /* Loading overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.85);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .loading-overlay.active { display: flex; }
+
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(6,192,21,0.2);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--gray-light);
+      font-weight: 300;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .tool-body { grid-template-columns: 1fr; }
+      .schema-panel { display: none; }
+      .validation-panel { border-left: none; border-top: 1px solid var(--border); }
+    }
+
+    @media (max-width: 600px) {
+      .tool-nav { padding: 0.75rem 1rem; }
+      .step-section { padding: 1rem; }
     }
   </style>
 </head>
 <body>
 
-<div class="glow-orb"></div>
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">Loading...</div>
+</div>
 
-<div class="page">
-
-  <!-- NAV -->
-  <nav>
-    <a href="https://wsdalearning.ai" class="nav-brand">
-      <div class="nav-logo">W</div>
-      <span class="nav-name">Walter Shields Data Academy</span>
+<!-- ════════════════════════════
+     SCREEN 1: LANDING / UPLOAD
+════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <nav class="landing-nav">
+    <a href="https://wsdalearning.ai" class="brand">
+      <div class="brand-logo">W</div>
+      <span class="brand-name">WSDA Learning</span>
     </a>
-    <a href="https://sqleditor.wsdalearning.ai" class="nav-link">Free SQL Editor</a>
+    <div class="session-counter" id="landing-session-counter">
+      Sessions used: <span id="landing-sessions-used">0</span> of 3
+    </div>
   </nav>
 
-  <!-- HERO -->
-  <section class="hero">
+  <div class="landing-body">
+    <div class="landing-eyebrow">PVC Practitioner</div>
+    <h1 class="landing-title">Connect your data.<br>Trust your <em>answers.</em></h1>
+    <p class="landing-sub">Upload your SQLite database and walk through the Prompt, Validate, Communicate workflow that data professionals use to produce trustworthy insights in the AI era.</p>
 
-    <div class="eyebrow">
-      <span class="eyebrow-dot"></span>
-      Coming soon
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="dbFileInput" accept=".db,.sqlite,.sqlite3" onchange="handleFileUpload(event)">
+      <div class="upload-icon">🗄️</div>
+      <div class="upload-title">Drop your database here</div>
+      <div class="upload-sub">Supports <strong>.db</strong> and <strong>.sqlite</strong> files · Runs entirely in your browser · Your data never leaves your device</div>
     </div>
+    <div class="upload-error" id="uploadError">Failed to load database. Please make sure it is a valid SQLite file.</div>
 
-    <h1>The first tool that teaches you to work <em>with</em> AI, not be replaced by it.</h1>
-
-    <p class="hero-sub">
-      SQL is not dead. The skill shifted. The data professionals who master
-      <strong>Prompt, Validate, Communicate</strong> are the ones organizations
-      cannot afford to lose. This is the tool built for them.
-    </p>
-
-    <div class="pvc-row">
-      <div class="pvc-pill"><span class="pvc-pill-num">P</span> Prompt with precision</div>
-      <div class="pvc-pill"><span class="pvc-pill-num">V</span> Validate with confidence</div>
-      <div class="pvc-pill"><span class="pvc-pill-num">C</span> Communicate with authority</div>
-    </div>
-
-    <!-- FORM -->
-    <div class="form-block" id="formBlock">
-      <span class="form-label">Be the first to know when it launches</span>
-
-      <div class="form-row">
-        <input type="text" id="firstName" placeholder="First name" autocomplete="given-name">
-        <input type="email" id="email" placeholder="Your email" autocomplete="email">
+    <div class="pvc-steps">
+      <div class="pvc-step">
+        <div class="pvc-step-letter">P</div>
+        <div class="pvc-step-label">Prompt</div>
       </div>
-
-      <div class="form-error" id="formError">Please enter a valid name and email.</div>
-
-      <button class="form-submit" id="submitBtn" onclick="submitWaitlist()">
-        Join the waitlist
-      </button>
-
-      <p class="form-privacy">No spam. No noise. Just a note from Walter when PVC Practitioner is ready.</p>
-    </div>
-
-    <!-- SUCCESS -->
-    <div class="success-block" id="successBlock">
-      <div class="success-icon">✓</div>
-      <h3>You're on the list.</h3>
-      <p>Walter will reach out personally when PVC Practitioner is ready.<br>In the meantime, practice your SQL at the free editor.</p>
-      <a href="https://sqleditor.wsdalearning.ai" style="display:inline-block;margin-top:1.25rem;font-size:0.88rem;color:var(--green);text-decoration:none;">Try the free SQL Editor →</a>
-    </div>
-
-  </section>
-
-  <hr class="divider">
-
-  <!-- THREE PILLARS -->
-  <section class="pillars">
-    <div class="pillars-label">What PVC Practitioner teaches</div>
-
-    <div class="pillar">
-      <div class="pillar-num">P</div>
-      <div class="pillar-content">
-        <div class="pillar-title">Prompt</div>
-        <p class="pillar-body">Frame the business question with enough precision that AI produces the <strong>right</strong> query, not just a technically correct one. This is analytical thinking, not typing.</p>
+      <div class="pvc-step">
+        <div class="pvc-step-letter">V</div>
+        <div class="pvc-step-label">Validate</div>
+      </div>
+      <div class="pvc-step">
+        <div class="pvc-step-letter">C</div>
+        <div class="pvc-step-label">Communicate</div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="pillar">
-      <div class="pillar-num">V</div>
-      <div class="pillar-content">
-        <div class="pillar-title">Validate</div>
-        <p class="pillar-body">Read the query. Catch the wrong join. Spot the missing filter. Run the checks that prove your result is trustworthy before you put your name on it. <strong>This is where SQL knowledge earns its keep in the AI era.</strong></p>
+<!-- ════════════════════════════
+     SCREEN 2: MAIN TOOL
+════════════════════════════ -->
+<div id="screen-tool" class="screen">
+  <nav class="tool-nav">
+    <div class="tool-nav-left">
+      <a href="https://wsdalearning.ai" class="brand">
+        <div class="brand-logo">W</div>
+        <span class="brand-name">PVC Practitioner</span>
+      </a>
+      <div class="db-badge" onclick="resetToLanding()" title="Change database">
+        <div class="db-badge-dot"></div>
+        <span id="dbName">database.db</span>
+        <span style="color:var(--gray);font-size:10px;">↺</span>
+      </div>
+    </div>
+    <div class="tool-nav-right">
+      <div class="sessions-pill">Sessions: <span id="tool-sessions-used">0</span> of 3 free</div>
+      <button class="new-session-btn" onclick="startNewSession()">+ New session</button>
+    </div>
+  </nav>
+
+  <div class="tool-body">
+
+    <!-- Schema sidebar -->
+    <div class="schema-panel">
+      <div class="schema-panel-title">Database schema</div>
+      <div id="schemaContent"><em style="font-size:12px;color:var(--gray)">Loading...</em></div>
+    </div>
+
+    <!-- Main workspace -->
+    <div class="workspace">
+
+      <!-- PROMPT section -->
+      <div class="step-section">
+        <div class="step-header">
+          <div class="step-badge p">P</div>
+          <div class="step-title">Prompt</div>
+          <div class="step-sub">Frame the business question</div>
+        </div>
+        <textarea
+          class="prompt-input"
+          id="promptInput"
+          placeholder="Describe the business question in plain English. Example: Which product categories had the highest return rates last quarter, and which regions drove most of the returns?"
+          rows="3"
+        ></textarea>
+        <div class="prompt-actions">
+          <button class="btn btn-amber" id="generateBtn" onclick="generateSQL()">
+            Generate SQL
+          </button>
+        </div>
+      </div>
+
+      <!-- SQL + VALIDATE section -->
+      <div class="step-section">
+        <div class="step-header">
+          <div class="step-badge v">V</div>
+          <div class="step-title">Validate</div>
+          <div class="step-sub">Review, run, and verify</div>
+        </div>
+
+        <div style="position:relative">
+          <div class="sql-box empty" id="sqlBox">SQL will appear here after you generate it above.</div>
+          <button class="sql-copy" id="sqlCopyBtn" onclick="copySQL()" style="display:none">Copy</button>
+        </div>
+
+        <div class="run-actions">
+          <button class="btn btn-green" id="runBtn" onclick="runQuery()" disabled>Run query</button>
+          <button class="btn btn-ghost" id="validateBtn" onclick="runValidation()" disabled>Run validation checks</button>
+        </div>
+
+        <div id="resultsArea" style="display:none">
+          <div class="results-wrap" id="resultsTable"></div>
+          <div style="font-size:11px;color:var(--gray);margin-top:0.5rem;" id="rowCount"></div>
+        </div>
+      </div>
+
+      <!-- COMMUNICATE section -->
+      <div class="step-section">
+        <div class="step-header">
+          <div class="step-badge c">C</div>
+          <div class="step-title">Communicate</div>
+          <div class="step-sub">Generate stakeholder output</div>
+        </div>
+
+        <div class="comm-formats">
+          <button class="comm-format-btn active" data-format="executive" onclick="selectFormat(this)">Executive summary</button>
+          <button class="comm-format-btn" data-format="slack" onclick="selectFormat(this)">Slack message</button>
+          <button class="comm-format-btn" data-format="email" onclick="selectFormat(this)">Email</button>
+          <button class="comm-format-btn" data-format="slide" onclick="selectFormat(this)">Slide bullet</button>
+        </div>
+
+        <div style="margin-top:0.75rem;margin-bottom:0.75rem;">
+          <button class="btn btn-purple" id="communicateBtn" onclick="generateCommunication()" disabled>Generate communication</button>
+        </div>
+
+        <div class="comm-output empty" id="commOutput">Communication output will appear here after validation is complete.</div>
+
+        <button class="btn btn-ghost comm-copy-btn" id="commCopyBtn" onclick="copyComm()" style="display:none">Copy output</button>
+      </div>
+
+    </div>
+
+    <!-- Validation panel -->
+    <div class="validation-panel">
+      <div class="val-header">
+        <div class="val-title">Validation report</div>
+        <div class="val-status" id="valStatus">Waiting for query results</div>
+      </div>
+      <div class="val-checks" id="valChecks">
+        <!-- populated by JS -->
+      </div>
+      <div class="val-report" id="valReport" style="display:none">
+        <div class="val-report-label">Summary</div>
+        <div class="val-report-text" id="valReportText"></div>
+        <div id="confidenceBadge"></div>
       </div>
     </div>
 
-    <div class="pillar">
-      <div class="pillar-num">C</div>
-      <div class="pillar-content">
-        <div class="pillar-title">Communicate</div>
-        <p class="pillar-body">Turn a result set into a sentence a VP will act on. The finding, the caveat, the recommendation in 30 seconds. <strong>AI generates the query. It cannot own the room. You can.</strong></p>
-      </div>
-    </div>
-  </section>
+  </div>
+</div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-left">© 2026 WSDA Learning. All rights reserved.</div>
-    <div class="footer-right">
-      <a href="https://wsdalearning.ai">wsdalearning.ai</a>
-    </div>
-  </footer>
+<!-- ════════════════════════════
+     SCREEN 3: PAYWALL
+════════════════════════════ -->
+<div id="screen-paywall" class="screen">
+  <div class="paywall-eyebrow">Your 3 free sessions are complete</div>
+  <h2 class="paywall-title">You've experienced the PVC workflow. Keep going.</h2>
+  <p class="paywall-sub">Unlock unlimited sessions, connect any SQLite database, and produce validation reports and stakeholder communications every day.</p>
 
+  <div class="paywall-card">
+    <div class="paywall-price">$49</div>
+    <div class="paywall-price-sub">per month, cancel anytime</div>
+    <ul class="paywall-features">
+      <li>Unlimited PVC sessions</li>
+      <li>Full validation report on every query</li>
+      <li>Stakeholder communication layer</li>
+      <li>4 output formats (exec, Slack, email, slide)</li>
+      <li>Connect any SQLite database</li>
+      <li>Session history</li>
+    </ul>
+    <a href="https://buy.stripe.com/aFa8wQ2xW2I3bKl2I6cjS00" target="_blank" class="paywall-cta">
+      Subscribe to PVC Practitioner
+    </a>
+  </div>
+  <p class="paywall-note">Already subscribed? <a href="mailto:walter@wsdalearning.ai" style="color:var(--green);text-decoration:none;">Contact Walter</a> to activate your account.</p>
 </div>
 
 <script>
-  const KLAVIYO_PUBLIC_KEY = 'Xq8cpH';
-  const KLAVIYO_LIST_ID    = 'Uv3bBB';
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const ANTHROPIC_MODEL = 'claude-sonnet-4-20250514';
+const MAX_FREE_SESSIONS = 3;
+const STRIPE_LINK = 'https://buy.stripe.com/aFa8wQ2xW2I3bKl2I6cjS00';
 
-  async function submitWaitlist() {
-    const firstName = document.getElementById('firstName').value.trim();
-    const email     = document.getElementById('email').value.trim();
-    const errorEl   = document.getElementById('formError');
-    const submitBtn = document.getElementById('submitBtn');
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let SQL, db, dbFileName = '';
+let currentSQL = '';
+let currentResults = null;
+let currentSchema = '';
+let currentPrompt = '';
+let currentFormat = 'executive';
+let validationResults = [];
 
-    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!firstName || !emailValid) {
-      errorEl.style.display = 'block';
+// Session tracking
+function getSessionsUsed() {
+  return parseInt(localStorage.getItem('pvc_sessions_used') || '0');
+}
+
+function incrementSessions() {
+  const n = getSessionsUsed() + 1;
+  localStorage.setItem('pvc_sessions_used', n);
+  return n;
+}
+
+function updateSessionCounters() {
+  const n = getSessionsUsed();
+  document.getElementById('landing-sessions-used').textContent = n;
+  document.getElementById('tool-sessions-used').textContent = n;
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+window.onload = async function() {
+  updateSessionCounters();
+
+  // Check if already hit paywall
+  if (getSessionsUsed() >= MAX_FREE_SESSIONS) {
+    showScreen('paywall');
+    return;
+  }
+
+  showLoading('Initializing SQL engine...');
+  try {
+    SQL = await initSqlJs({
+      locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+    });
+  } catch(e) {
+    console.error('SQL.js init failed:', e);
+  }
+  hideLoading();
+
+  // Drag and drop
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) loadDBFile(file);
+  });
+};
+
+// ─────────────────────────────────────────────
+// SCREEN MANAGEMENT
+// ─────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+function showLoading(text) {
+  document.getElementById('loadingText').textContent = text || 'Working...';
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+// ─────────────────────────────────────────────
+// DATABASE HANDLING
+// ─────────────────────────────────────────────
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) loadDBFile(file);
+}
+
+function loadDBFile(file) {
+  showLoading('Loading database...');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      db = new SQL.Database(data);
+      dbFileName = file.name;
+      document.getElementById('dbName').textContent = file.name;
+      document.getElementById('uploadError').style.display = 'none';
+      buildSchema();
+      hideLoading();
+      startNewSession();
+      showScreen('tool');
+    } catch(err) {
+      hideLoading();
+      document.getElementById('uploadError').style.display = 'block';
+      console.error('DB load error:', err);
+    }
+  };
+  reader.onerror = function() {
+    hideLoading();
+    document.getElementById('uploadError').style.display = 'block';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function resetToLanding() {
+  showScreen('landing');
+}
+
+// ─────────────────────────────────────────────
+// SCHEMA
+// ─────────────────────────────────────────────
+function buildSchema() {
+  try {
+    const result = db.exec("SELECT name, type FROM sqlite_master WHERE type IN ('table','view') ORDER BY type, name");
+    if (!result.length) {
+      document.getElementById('schemaContent').innerHTML = '<em style="font-size:12px;color:var(--gray)">No tables found.</em>';
+      currentSchema = '';
       return;
     }
-    errorEl.style.display = 'none';
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Joining...';
+    let html = '';
+    let schemaText = '';
 
-    try {
-      const res = await fetch(`https://a.klaviyo.com/client/subscriptions/?company_id=${KLAVIYO_PUBLIC_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'revision': '2024-10-15'
-        },
-        body: JSON.stringify({
-          data: {
-            type: 'subscription',
-            attributes: {
-              custom_source: 'WSDA PVC Waitlist',
-              profile: {
-                data: {
-                  type: 'profile',
-                  attributes: {
-                    email: email,
-                    first_name: firstName
-                  }
-                }
-              }
-            },
-            relationships: {
-              list: {
-                data: {
-                  type: 'list',
-                  id: KLAVIYO_LIST_ID
-                }
-              }
-            }
-          }
-        })
+    result[0].values.forEach(row => {
+      const [name, type] = row;
+      if (type !== 'table') return;
+
+      // Get column info
+      const colResult = db.exec(`PRAGMA table_info(${name})`);
+      let cols = [];
+      if (colResult.length) {
+        cols = colResult[0].values.map(c => ({ name: c[1], type: c[2] }));
+      }
+
+      schemaText += `Table: ${name}\nColumns: ${cols.map(c => `${c.name} (${c.type})`).join(', ')}\n\n`;
+
+      html += `<div class="schema-table">
+        <div class="schema-table-header" onclick="toggleSchema('${name}')">
+          <span class="schema-table-caret" id="caret-${name}">▶</span>
+          <span>${name}</span>
+        </div>
+        <div class="schema-cols" id="cols-${name}">
+          ${cols.map(c => `<div class="schema-col">${c.name} <span class="schema-col-type">${c.type}</span></div>`).join('')}
+        </div>
+      </div>`;
+    });
+
+    document.getElementById('schemaContent').innerHTML = html;
+    currentSchema = schemaText.trim();
+  } catch(e) {
+    document.getElementById('schemaContent').innerHTML = '<em style="font-size:12px;color:var(--gray)">Error loading schema.</em>';
+  }
+}
+
+function toggleSchema(name) {
+  const cols = document.getElementById('cols-' + name);
+  const caret = document.getElementById('caret-' + name);
+  const isOpen = cols.style.display === 'block';
+  cols.style.display = isOpen ? 'none' : 'block';
+  caret.classList.toggle('open', !isOpen);
+}
+
+// ─────────────────────────────────────────────
+// SESSION MANAGEMENT
+// ─────────────────────────────────────────────
+function startNewSession() {
+  currentSQL = '';
+  currentResults = null;
+  currentPrompt = '';
+  validationResults = [];
+
+  document.getElementById('promptInput').value = '';
+  document.getElementById('sqlBox').textContent = 'SQL will appear here after you generate it above.';
+  document.getElementById('sqlBox').className = 'sql-box empty';
+  document.getElementById('sqlCopyBtn').style.display = 'none';
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('validateBtn').disabled = true;
+  document.getElementById('communicateBtn').disabled = true;
+  document.getElementById('resultsArea').style.display = 'none';
+  document.getElementById('commOutput').textContent = 'Communication output will appear here after validation is complete.';
+  document.getElementById('commOutput').className = 'comm-output empty';
+  document.getElementById('commCopyBtn').style.display = 'none';
+  document.getElementById('valStatus').textContent = 'Waiting for query results';
+  document.getElementById('valStatus').className = 'val-status';
+  document.getElementById('valChecks').innerHTML = '';
+  document.getElementById('valReport').style.display = 'none';
+
+  initValChecks();
+}
+
+// ─────────────────────────────────────────────
+// STEP P: GENERATE SQL
+// ─────────────────────────────────────────────
+async function generateSQL() {
+  const prompt = document.getElementById('promptInput').value.trim();
+  if (!prompt) {
+    document.getElementById('promptInput').focus();
+    return;
+  }
+
+  currentPrompt = prompt;
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+  document.getElementById('sqlBox').textContent = 'Generating SQL...';
+  document.getElementById('sqlBox').className = 'sql-box empty';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: ANTHROPIC_MODEL,
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are a SQL expert. Generate a single, correct SQLite SQL query for the following business question.
+
+Database schema:
+${currentSchema}
+
+Business question: ${prompt}
+
+Rules:
+- Return ONLY the SQL query, nothing else
+- No markdown, no backticks, no explanation
+- Use proper SQLite syntax
+- Make the query efficient and correct`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const sql = data.content[0].text.trim();
+    currentSQL = sql;
+
+    document.getElementById('sqlBox').textContent = sql;
+    document.getElementById('sqlBox').className = 'sql-box';
+    document.getElementById('sqlCopyBtn').style.display = 'block';
+    document.getElementById('runBtn').disabled = false;
+
+  } catch(e) {
+    console.error('Generate SQL error:', e);
+    document.getElementById('sqlBox').textContent = 'Error generating SQL. Please check your connection and try again.';
+    document.getElementById('sqlBox').className = 'sql-box empty';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Generate SQL';
+}
+
+// ─────────────────────────────────────────────
+// STEP V: RUN QUERY
+// ─────────────────────────────────────────────
+function runQuery() {
+  if (!currentSQL || !db) return;
+
+  try {
+    const results = db.exec(currentSQL);
+    currentResults = results;
+
+    if (!results || results.length === 0) {
+      document.getElementById('resultsTable').innerHTML = '<div class="results-empty">Query ran successfully but returned no rows.</div>';
+      document.getElementById('rowCount').textContent = '0 rows returned';
+    } else {
+      const r = results[0];
+      let html = '<table><thead><tr>';
+      r.columns.forEach(col => { html += `<th>${col}</th>`; });
+      html += '</tr></thead><tbody>';
+      r.values.forEach(row => {
+        html += '<tr>';
+        row.forEach(val => { html += `<td>${val === null ? '<em style="color:var(--gray)">null</em>' : val}</td>`; });
+        html += '</tr>';
       });
-
-      if (res.status === 202 || res.ok) {
-        showSuccess(firstName);
-      } else {
-        const text = await res.text();
-        console.error('Klaviyo error:', text);
-        // Still show success to user, log error silently
-        showSuccess(firstName);
-      }
-
-    } catch (err) {
-      console.error('Submit error:', err);
-      showSuccess(firstName);
+      html += '</tbody></table>';
+      document.getElementById('resultsTable').innerHTML = html;
+      document.getElementById('rowCount').textContent = `${r.values.length} row${r.values.length !== 1 ? 's' : ''} returned`;
     }
+
+    document.getElementById('resultsArea').style.display = 'block';
+    document.getElementById('validateBtn').disabled = false;
+
+  } catch(e) {
+    document.getElementById('resultsTable').innerHTML = `<div class="results-empty" style="color:var(--red)">SQL Error: ${e.message}</div>`;
+    document.getElementById('resultsArea').style.display = 'block';
+  }
+}
+
+// ─────────────────────────────────────────────
+// STEP V: VALIDATION CHECKS
+// ─────────────────────────────────────────────
+function initValChecks() {
+  const checks = [
+    { id: 'intent', name: 'Intent alignment', desc: 'Query matches the business question' },
+    { id: 'nulls', name: 'Null audit', desc: 'Unexpected nulls in key columns' },
+    { id: 'rowcount', name: 'Row count sanity', desc: 'Result set size is plausible' },
+    { id: 'joins', name: 'Join logic', desc: 'Join type is appropriate for the question' },
+    { id: 'dates', name: 'Filter confirmation', desc: 'Filters match the intended scope' },
+    { id: 'plausibility', name: 'Plausibility check', desc: 'Numbers are in expected range' }
+  ];
+
+  const html = checks.map(c => `
+    <div class="val-check" id="check-${c.id}">
+      <div class="val-check-icon pending" id="icon-${c.id}">○</div>
+      <div class="val-check-body">
+        <div class="val-check-name">${c.name}</div>
+        <div class="val-check-desc" id="desc-${c.id}">${c.desc}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('valChecks').innerHTML = html;
+}
+
+async function runValidation() {
+  if (!currentResults || !currentSQL) return;
+
+  const btn = document.getElementById('validateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Running checks...';
+
+  document.getElementById('valStatus').textContent = 'Running validation...';
+  document.getElementById('valStatus').className = 'val-status running';
+
+  // Prepare results summary for AI
+  let resultsSummary = 'No rows returned';
+  let nullCount = 0;
+  let rowCount = 0;
+
+  if (currentResults && currentResults.length > 0) {
+    const r = currentResults[0];
+    rowCount = r.values.length;
+
+    // Count nulls
+    r.values.forEach(row => {
+      row.forEach(val => { if (val === null) nullCount++; });
+    });
+
+    // Sample first 5 rows
+    const sample = r.values.slice(0, 5).map(row =>
+      row.reduce((obj, val, i) => { obj[r.columns[i]] = val; return obj; }, {})
+    );
+    resultsSummary = `Columns: ${r.columns.join(', ')}\nRows returned: ${rowCount}\nNull values found: ${nullCount}\nSample data: ${JSON.stringify(sample, null, 2)}`;
   }
 
-  function showSuccess(firstName) {
-    document.getElementById('formBlock').style.display = 'none';
-    const s = document.getElementById('successBlock');
-    s.style.display = 'block';
-    if (firstName) {
-      s.querySelector('h3').textContent = `You're on the list, ${firstName}.`;
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: ANTHROPIC_MODEL,
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are a data quality expert running validation checks on a SQL query result.
+
+Business question: ${currentPrompt}
+
+SQL query used:
+${currentSQL}
+
+Database schema:
+${currentSchema}
+
+Query results summary:
+${resultsSummary}
+
+Run these 6 validation checks and respond ONLY with valid JSON in this exact format:
+{
+  "intent": {"status": "pass|warn|fail", "detail": "one sentence"},
+  "nulls": {"status": "pass|warn|fail", "detail": "one sentence"},
+  "rowcount": {"status": "pass|warn|fail", "detail": "one sentence"},
+  "joins": {"status": "pass|warn|fail", "detail": "one sentence"},
+  "dates": {"status": "pass|warn|fail", "detail": "one sentence"},
+  "plausibility": {"status": "pass|warn|fail", "detail": "one sentence"},
+  "summary": "2-3 sentence plain English summary of overall data trustworthiness",
+  "confidence": "high|medium|low"
+}`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    let raw = data.content[0].text.trim();
+
+    // Strip markdown if present
+    raw = raw.replace(/```json|```/g, '').trim();
+    const checks = JSON.parse(raw);
+
+    // Update check icons
+    const checkIds = ['intent', 'nulls', 'rowcount', 'joins', 'dates', 'plausibility'];
+    const iconMap = { pass: '✓', warn: '!', fail: '✗' };
+
+    checkIds.forEach(id => {
+      const check = checks[id];
+      if (!check) return;
+      const icon = document.getElementById('icon-' + id);
+      const desc = document.getElementById('desc-' + id);
+      icon.className = `val-check-icon ${check.status}`;
+      icon.textContent = iconMap[check.status] || '○';
+      desc.textContent = check.detail;
+    });
+
+    // Summary and confidence
+    document.getElementById('valReportText').textContent = checks.summary;
+
+    const conf = checks.confidence || 'medium';
+    const confLabels = { high: 'High confidence', medium: 'Medium confidence', low: 'Needs review' };
+    document.getElementById('confidenceBadge').innerHTML = `<div class="confidence-badge ${conf}">${confLabels[conf]}</div>`;
+    document.getElementById('valReport').style.display = 'block';
+
+    const hasWarnings = checkIds.some(id => checks[id]?.status === 'warn');
+    const hasFails = checkIds.some(id => checks[id]?.status === 'fail');
+
+    if (hasFails) {
+      document.getElementById('valStatus').textContent = 'Issues detected';
+      document.getElementById('valStatus').className = 'val-status warning';
+    } else if (hasWarnings) {
+      document.getElementById('valStatus').textContent = 'Passed with caveats';
+      document.getElementById('valStatus').className = 'val-status warning';
+    } else {
+      document.getElementById('valStatus').textContent = 'All checks passed';
+      document.getElementById('valStatus').className = 'val-status ready';
     }
+
+    // Enable communicate
+    document.getElementById('communicateBtn').disabled = false;
+
+    // Increment session count after full validation
+    const sessionsNow = incrementSessions();
+    updateSessionCounters();
+
+  } catch(e) {
+    console.error('Validation error:', e);
+    document.getElementById('valStatus').textContent = 'Validation error';
   }
 
-  // Allow Enter key to submit
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      const active = document.activeElement;
-      if (active && (active.id === 'firstName' || active.id === 'email')) {
-        submitWaitlist();
-      }
+  btn.disabled = false;
+  btn.innerHTML = 'Run validation checks';
+}
+
+// ─────────────────────────────────────────────
+// STEP C: COMMUNICATE
+// ─────────────────────────────────────────────
+function selectFormat(btn) {
+  document.querySelectorAll('.comm-format-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFormat = btn.dataset.format;
+}
+
+async function generateCommunication() {
+  const btn = document.getElementById('communicateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+  const formatInstructions = {
+    executive: 'Write a 2-3 sentence executive summary. Lead with the key finding, include one important caveat, end with a recommended action. No jargon. A VP should be able to act on this in 30 seconds.',
+    slack: 'Write a Slack message. Start with a bold key finding using *asterisks*, add 2-3 bullet points of supporting detail, end with a clear next step. Keep it under 150 words.',
+    email: 'Write a brief professional email. Subject line first (label it "Subject:"), then 2-3 short paragraphs: context, finding with key data point, recommended next step. Under 200 words.',
+    slide: 'Write 3-5 punchy slide bullets. Each bullet is one clear insight or data point. No full sentences. No filler words. Format as a simple list starting each line with a dash.'
+  };
+
+  let resultsSummary = 'No data returned';
+  if (currentResults && currentResults.length > 0) {
+    const r = currentResults[0];
+    const sample = r.values.slice(0, 10);
+    resultsSummary = `Columns: ${r.columns.join(', ')}\nData: ${JSON.stringify(sample)}`;
+  }
+
+  const valSummary = document.getElementById('valReportText').textContent;
+  const confidence = document.querySelector('.confidence-badge')?.textContent || '';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: ANTHROPIC_MODEL,
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are helping a data analyst communicate findings to stakeholders.
+
+Original business question: ${currentPrompt}
+
+Query results:
+${resultsSummary}
+
+Validation summary: ${valSummary}
+Confidence level: ${confidence}
+
+Format requested: ${currentFormat}
+Instructions: ${formatInstructions[currentFormat]}
+
+Important: If confidence is low or medium, include a brief honest caveat about data quality. Never overstate certainty.
+
+Respond with ONLY the communication output. No preamble, no explanation.`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const output = data.content[0].text.trim();
+
+    document.getElementById('commOutput').textContent = output;
+    document.getElementById('commOutput').className = 'comm-output';
+    document.getElementById('commCopyBtn').style.display = 'inline-flex';
+
+    // Check paywall after communicate
+    if (getSessionsUsed() >= MAX_FREE_SESSIONS) {
+      setTimeout(() => {
+        showScreen('paywall');
+      }, 4000);
     }
+
+  } catch(e) {
+    console.error('Communication error:', e);
+    document.getElementById('commOutput').textContent = 'Error generating communication. Please try again.';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Generate communication';
+}
+
+// ─────────────────────────────────────────────
+// COPY HELPERS
+// ─────────────────────────────────────────────
+function copySQL() {
+  navigator.clipboard.writeText(currentSQL).then(() => {
+    const btn = document.getElementById('sqlCopyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
   });
-</script>
+}
 
+function copyComm() {
+  const text = document.getElementById('commOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('commCopyBtn');
+    btn.innerHTML = 'Copied!';
+    setTimeout(() => { btn.innerHTML = 'Copy output'; }, 1500);
+  });
+}
+
+// Init validation check placeholders on load
+initValChecks();
+</script>
 </body>
 </html>
