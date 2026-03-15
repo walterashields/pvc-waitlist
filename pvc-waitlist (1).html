@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PVC Practitioner | WSDA Learning</title>
+  <meta name="description" content="The new standard for data professionals working in the AI era. Master Prompt, Validate, Communicate. Join the waitlist.">
+  <meta property="og:title" content="PVC Practitioner by Walter Shields">
+  <meta property="og:description" content="The first tool that teaches data professionals how to work with AI, not be replaced by it. Join the waitlist.">
+  <meta property="og:url" content="https://pvc.wsdalearning.ai">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #fafaf8;
+      --green: #06c015;
+      --green-dark: #059e11;
+      --green-dim: rgba(6,192,21,0.12);
+      --green-glow: rgba(6,192,21,0.06);
+      --gray: #6b6b6b;
+      --gray-light: #e8e8e4;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background-color: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── GLOW ── */
+    .glow-orb {
+      position: fixed;
+      top: -20vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(6,192,21,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem 0 0;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 32px;
+      height: 32px;
+      background: var(--green);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 14px;
+      color: white;
+      font-weight: 400;
+    }
+
+    .nav-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-light);
+      letter-spacing: 0.02em;
+    }
+
+    .nav-link {
+      font-size: 13px;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover { color: var(--white); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 7rem 0 4rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.2s forwards;
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 6vw, 4rem);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      margin-bottom: 1.75rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.3s forwards;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--green);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: #a0a09a;
+      line-height: 1.75;
+      max-width: 520px;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.4s forwards;
+    }
+
+    .hero-sub strong {
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    /* ── PVC PILLS ── */
+    .pvc-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.5s forwards;
+    }
+
+    .pvc-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 400;
+      color: #c0c0b8;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .pvc-pill:hover {
+      border-color: var(--green);
+      color: var(--white);
+    }
+
+    .pvc-pill-num {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 15px;
+      color: var(--green);
+    }
+
+    /* ── FORM ── */
+    .form-block {
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.6s forwards;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-row input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-family: var(--sans);
+      font-weight: 300;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .form-row input::placeholder { color: #555; }
+
+    .form-row input:focus {
+      border-color: var(--green);
+      background: rgba(6,192,21,0.04);
+    }
+
+    .form-submit {
+      width: 100%;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 0.97rem;
+      font-weight: 500;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.01em;
+    }
+
+    .form-submit:hover { background: var(--green-dark); }
+    .form-submit:active { transform: scale(0.99); }
+    .form-submit:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    .form-error {
+      font-size: 0.82rem;
+      color: #e05c5c;
+      margin-top: 0.4rem;
+      display: none;
+    }
+
+    .form-privacy {
+      font-size: 0.78rem;
+      color: #444;
+      margin-top: 0.85rem;
+      line-height: 1.5;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-block {
+      display: none;
+      padding: 2.5rem;
+      background: var(--green-dim);
+      border: 1px solid rgba(6,192,21,0.25);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .success-block .success-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-block h3 {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--green);
+      margin-bottom: 0.5rem;
+    }
+
+    .success-block p {
+      font-size: 0.92rem;
+      color: #a0a09a;
+      line-height: 1.6;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin: 4rem 0;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.8s forwards;
+    }
+
+    /* ── THREE PILLARS ── */
+    .pillars {
+      padding-bottom: 5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.9s forwards;
+    }
+
+    .pillars-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+
+    .pillar {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 0 1.25rem;
+      padding: 1.5rem 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .pillar:last-child { border-bottom: 1px solid rgba(255,255,255,0.06); }
+
+    .pillar-num {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 2.2rem;
+      color: rgba(6,192,21,0.3);
+      line-height: 1;
+      padding-top: 2px;
+    }
+
+    .pillar-content {}
+
+    .pillar-title {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 0.4rem;
+    }
+
+    .pillar-body {
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: #787870;
+      line-height: 1.7;
+    }
+
+    .pillar-body strong {
+      color: #a0a09a;
+      font-weight: 400;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-left {
+      font-size: 12px;
+      color: #444;
+    }
+
+    .footer-right {
+      font-size: 12px;
+      color: #444;
+    }
+
+    .footer-right a {
+      color: #444;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-right a:hover { color: var(--gray); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      .form-row { flex-direction: column; }
+      h1 { font-size: 2.2rem; }
+      .hero { padding: 5rem 0 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glow-orb"></div>
+
+<div class="page">
+
+  <!-- NAV -->
+  <nav>
+    <a href="https://wsdalearning.ai" class="nav-brand">
+      <div class="nav-logo">W</div>
+      <span class="nav-name">Walter Shields Data Academy</span>
+    </a>
+    <a href="https://sqleditor.wsdalearning.ai" class="nav-link">Free SQL Editor</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+
+    <div class="eyebrow">
+      <span class="eyebrow-dot"></span>
+      Coming soon
+    </div>
+
+    <h1>The first tool that teaches you to work <em>with</em> AI, not be replaced by it.</h1>
+
+    <p class="hero-sub">
+      SQL is not dead. The skill shifted. The data professionals who master
+      <strong>Prompt, Validate, Communicate</strong> are the ones organizations
+      cannot afford to lose. This is the tool built for them.
+    </p>
+
+    <div class="pvc-row">
+      <div class="pvc-pill"><span class="pvc-pill-num">P</span> Prompt with precision</div>
+      <div class="pvc-pill"><span class="pvc-pill-num">V</span> Validate with confidence</div>
+      <div class="pvc-pill"><span class="pvc-pill-num">C</span> Communicate with authority</div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-block" id="formBlock">
+      <span class="form-label">Be the first to know when it launches</span>
+
+      <div class="form-row">
+        <input type="text" id="firstName" placeholder="First name" autocomplete="given-name">
+        <input type="email" id="email" placeholder="Your email" autocomplete="email">
+      </div>
+
+      <div class="form-error" id="formError">Please enter a valid name and email.</div>
+
+      <button class="form-submit" id="submitBtn" onclick="submitWaitlist()">
+        Join the waitlist
+      </button>
+
+      <p class="form-privacy">No spam. No noise. Just a note from Walter when PVC Practitioner is ready.</p>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-block" id="successBlock">
+      <div class="success-icon">✓</div>
+      <h3>You're on the list.</h3>
+      <p>Walter will reach out personally when PVC Practitioner is ready.<br>In the meantime, practice your SQL at the free editor.</p>
+      <a href="https://sqleditor.wsdalearning.ai" style="display:inline-block;margin-top:1.25rem;font-size:0.88rem;color:var(--green);text-decoration:none;">Try the free SQL Editor →</a>
+    </div>
+
+  </section>
+
+  <hr class="divider">
+
+  <!-- THREE PILLARS -->
+  <section class="pillars">
+    <div class="pillars-label">What PVC Practitioner teaches</div>
+
+    <div class="pillar">
+      <div class="pillar-num">P</div>
+      <div class="pillar-content">
+        <div class="pillar-title">Prompt</div>
+        <p class="pillar-body">Frame the business question with enough precision that AI produces the <strong>right</strong> query, not just a technically correct one. This is analytical thinking, not typing.</p>
+      </div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-num">V</div>
+      <div class="pillar-content">
+        <div class="pillar-title">Validate</div>
+        <p class="pillar-body">Read the query. Catch the wrong join. Spot the missing filter. Run the checks that prove your result is trustworthy before you put your name on it. <strong>This is where SQL knowledge earns its keep in the AI era.</strong></p>
+      </div>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-num">C</div>
+      <div class="pillar-content">
+        <div class="pillar-title">Communicate</div>
+        <p class="pillar-body">Turn a result set into a sentence a VP will act on. The finding, the caveat, the recommendation in 30 seconds. <strong>AI generates the query. It cannot own the room. You can.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">© 2026 WSDA Learning. All rights reserved.</div>
+    <div class="footer-right">
+      <a href="https://wsdalearning.ai">wsdalearning.ai</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const KLAVIYO_PUBLIC_KEY = 'Xq8cpH';
+  const KLAVIYO_LIST_ID    = 'Uv3bBB';
+
+  async function submitWaitlist() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const errorEl   = document.getElementById('formError');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!firstName || !emailValid) {
+      errorEl.style.display = 'block';
+      return;
+    }
+    errorEl.style.display = 'none';
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Joining...';
+
+    try {
+      const res = await fetch(`https://a.klaviyo.com/client/subscriptions/?company_id=${KLAVIYO_PUBLIC_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'revision': '2024-10-15'
+        },
+        body: JSON.stringify({
+          data: {
+            type: 'subscription',
+            attributes: {
+              custom_source: 'WSDA PVC Waitlist',
+              profile: {
+                data: {
+                  type: 'profile',
+                  attributes: {
+                    email: email,
+                    first_name: firstName
+                  }
+                }
+              }
+            },
+            relationships: {
+              list: {
+                data: {
+                  type: 'list',
+                  id: KLAVIYO_LIST_ID
+                }
+              }
+            }
+          }
+        })
+      });
+
+      if (res.status === 202 || res.ok) {
+        showSuccess(firstName);
+      } else {
+        const text = await res.text();
+        console.error('Klaviyo error:', text);
+        // Still show success to user, log error silently
+        showSuccess(firstName);
+      }
+
+    } catch (err) {
+      console.error('Submit error:', err);
+      showSuccess(firstName);
+    }
+  }
+
+  function showSuccess(firstName) {
+    document.getElementById('formBlock').style.display = 'none';
+    const s = document.getElementById('successBlock');
+    s.style.display = 'block';
+    if (firstName) {
+      s.querySelector('h3').textContent = `You're on the list, ${firstName}.`;
+    }
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const active = document.activeElement;
+      if (active && (active.id === 'firstName' || active.id === 'email')) {
+        submitWaitlist();
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
